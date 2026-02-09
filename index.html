@@ -1,86 +1,198 @@
-<!DOCTYPE html><html lang="en">
+<!-- UPDATED RESPONSIVE & FIXED VERSION --><!DOCTYPE html><html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Only You ❤️</title>
-<style>
-*{box-sizing:border-box;font-family:'Poppins',sans-serif}
-body{margin:0;min-height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ff758c,#ff7eb3)}/* hearts */ .heart{position:fixed;top:-10px;color:rgba(255,0,90,.75);animation:fall linear infinite;pointer-events:none} @keyframes fall{to{transform:translateY(110vh)}}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Be My Valentine ❤️</title>  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      min-height: 100vh;
+      overflow-x: hidden;
+      text-align: center;
+    }
 
-.card{background:rgba(255,255,255,.95);padding:22px 20px;border-radius:22px;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,.3);width:92%;max-width:420px} .name{font-size:26px;font-weight:700;color:#ff3366;animation:glow 2s ease-in-out infinite alternate} @keyframes glow{from{text-shadow:0 0 10px #ff9abf}to{text-shadow:0 0 22px #ff3366}}
+    .heart {
+      position: fixed;
+      top: -10px;
+      font-size: 20px;
+      animation: fall linear infinite;
+      z-index: 0;
+    }
 
-.buttons{margin-top:25px;position:relative;height:110px} button{padding:14px 32px;border:none;border-radius:40px;font-size:17px;cursor:pointer;transition:.35s} #yes{background:#ff3366;color:#fff;position:absolute;left:50%;transform:translateX(-50%);z-index:5} #no{background:#aaa;color:#fff;position:absolute;left:50%;top:65px;transform:translateX(-50%);z-index:1}
+    @keyframes fall {
+      to { transform: translateY(110vh); }
+    }
 
-/* splash */ #splash{display:none;position:fixed;inset:0;z-index:10;align-items:center;justify-content:center;flex-direction:column;background:rgba(255,255,255,.85)} #loveText{font-size:42px;font-weight:800;color:#ff3366;animation:moveUp 4s ease forwards} @keyframes moveUp{0%{transform:scale(.4);opacity:0}30%{transform:scale(1);opacity:1}100%{transform:translateY(-160px) scale(1);opacity:1}} #loveGif{width:220px;margin-top:15px}
+    .container {
+      position: relative;
+      z-index: 2;
+      padding: 20px;
+      max-width: 100%;
+    }
 
-/* carousel */ #carouselWrap{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:340px} .carousel{overflow:hidden;border-radius:20px} .carousel-track{display:flex;animation:slide 25s linear infinite} .carousel img{width:100%;flex-shrink:0;border-radius:20px} @keyframes slide{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+    h1 {
+      font-size: clamp(22px, 6vw, 36px);
+      margin: 40px 0 20px;
+    }
 
-/* quiz */ #quiz{display:none} .quiz-q{font-weight:600;margin-bottom:12px} .options button{width:100%;margin:8px 0;background:#ffd1dc;color:#333} .tease{color:#ff3366;font-size:14px;margin-top:6px}
+    .buttons {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
 
-@media(max-width:480px){ #loveText{font-size:34px} #loveGif{width:180px} } </style>
+    button {
+      padding: 14px 24px;
+      font-size: 18px;
+      border-radius: 30px;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      z-index: 3;
+    }
 
-</head>
-<body><div class="card" id="question">
-  <div class="name">Only You ❤️</div>
-  <p>This heart was made only for you 💗<br>Ee hrudaya ninnadhu matra</p>
-  <h3>Will you be my Valentine?</h3>
-  <div class="buttons">
-    <button id="yes">Yes 🥰</button>
+    #yes {
+      background: #ff4d6d;
+      color: white;
+      transition: transform 0.3s;
+    }
+
+    #no {
+      background: #fff;
+    }
+
+    .hidden { display: none; }
+
+    /* YES SCREEN */
+    #loveScreen {
+      margin-top: 40px;
+      animation: rise 3s ease forwards;
+    }
+
+    @keyframes rise {
+      from { transform: translateY(80px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    #loveText {
+      font-size: clamp(26px, 7vw, 48px);
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      50% { transform: scale(1.05); }
+    }
+
+    .gif {
+      width: 80%;
+      max-width: 300px;
+      margin: 20px auto;
+    }
+
+    /* CAROUSEL */
+    .carousel {
+      margin: 30px auto;
+      width: 90%;
+      max-width: 320px;
+    }
+
+    .carousel img {
+      width: 100%;
+      border-radius: 20px;
+    }
+
+    /* NEXT BUTTON */
+    .nextBtn {
+      margin: 20px auto;
+      background: #ff4d6d;
+      color: white;
+      display: block;
+    }
+
+    /* QUIZ */
+    .quiz {
+      padding: 20px;
+    }
+
+    .option {
+      background: white;
+      margin: 10px auto;
+      padding: 12px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 300px;
+      cursor: pointer;
+    }
+
+  </style></head>
+<body><div class="container">
+  <h1>Will you be my Valentine? 💖</h1>  <div class="buttons">
+    <button id="yes">Yes 😍</button>
     <button id="no">No 🙈</button>
+  </div>  <div id="loveScreen" class="hidden">
+    <div id="loveText">I LOVE YOU, BABE ❤️</div>
+    <img class="gif" src="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif" /><div class="carousel">
+  <img id="carouselImg" src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e" />
+</div>
+
+<button class="nextBtn" onclick="showQuiz()">Next 💌</button>
+
+  </div>  <div id="quiz" class="quiz hidden">
+    <h2>How well do you know us? 😉</h2>
+    <div class="option">Only you & me 💕</div>
+    <div class="option">Forever together 💍</div>
+    <div class="option">Till infinity ♾️</div>
   </div>
-</div><div id="splash">
-  <div id="loveText">I love you, babe ❤️</div>
-  <img id="loveGif" src="cute.gif" />
-</div><div id="carouselWrap">
-  <div class="carousel">
-    <div class="carousel-track" id="carousel"></div>
-  </div>
-  <button style="margin-top:12px" onclick="startQuiz()">Next ➜</button>
-</div><div class="card" id="quiz">
-  <h3>One Last Thing 😏</h3>
-  <div class="quiz-q" id="quizQ"></div>
-  <div class="options" id="options"></div>
-  <div class="tease" id="tease"></div>
-</div><audio id="music" src="your-music.mp3"></audio>
+</div><audio id="music" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
 
 <script>
-/* hearts */
-setInterval(()=>{const h=document.createElement('div');h.className='heart';h.innerHTML='❤';h.style.left=Math.random()*100+'vw';h.style.fontSize=Math.random()*20+12+'px';h.style.animationDuration=Math.random()*3+4+'s';document.body.appendChild(h);setTimeout(()=>h.remove(),7000)},180);
+  // HEART RAIN
+  setInterval(() => {
+    const h = document.createElement('div');
+    h.className = 'heart';
+    h.innerText = '❤️';
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.animationDuration = 3 + Math.random() * 5 + 's';
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 8000);
+  }, 300);
 
-const noBtn=document.getElementById('no');
-const yesBtn=document.getElementById('yes');
-let scale=1;
-noBtn.onmouseenter=()=>{noBtn.style.transform=`translate(${Math.random()*220-110}px,${Math.random()*40+40}px)`;scale+=.18;yesBtn.style.transform=`translateX(-50%) scale(${scale})`};
+  const yes = document.getElementById('yes');
+  const no = document.getElementById('no');
+  let scale = 1;
 
-const photos=['photo1.jpg','photo2.jpg','photo3.jpg','photo4.jpg','photo5.jpg'];
-const fallbackGifs=['https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif','https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif'];
+  no.addEventListener('mouseover', () => {
+    no.style.position = 'absolute';
+    no.style.left = Math.random() * 70 + 'vw';
+    no.style.top = Math.random() * 70 + 'vh';
+    scale += 0.1;
+    yes.style.transform = `scale(${scale})`;
+  });
 
-function hasPhotos(){return photos.length>0}
+  yes.addEventListener('click', () => {
+    document.querySelector('.buttons').classList.add('hidden');
+    document.getElementById('loveScreen').classList.remove('hidden');
+    document.getElementById('music').play();
+  });
 
-function buildCarousel(){const track=document.getElementById('carousel');const list=hasPhotos()?photos:fallbackGifs;list.concat(list).forEach(src=>{const img=document.createElement('img');img.src=src;track.appendChild(img)})}
+  // CAROUSEL
+  const imgs = [
+    'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e',
+    'https://images.unsplash.com/photo-1517841905240-472988babdf9',
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e'
+  ];
+  let idx = 0;
+  setInterval(() => {
+    idx = (idx + 1) % imgs.length;
+    document.getElementById('carouselImg').src = imgs[idx];
+  }, 2500);
 
-const splash=document.getElementById('splash');
-const carouselWrap=document.getElementById('carouselWrap');
-
-yesBtn.onclick=()=>{
-  question.style.display='none';
-  splash.style.display='flex';
-  music.play();
-  buildCarousel();
-  setTimeout(()=>{carouselWrap.style.display='block'},1800);
-};
-
-/* quiz */
-const quizData=[
-{q:'Who owns my heart completely? 💖',o:['Everyone','You','Coffee','Me'],a:1},
-{q:'Our vibe together feels like?',o:['Chaos','Magic ✨','Routine','Nothing'],a:1},
-{q:'When I see you, I feel?',o:['Calm','Happy','Home 🏡','Sleepy'],a:2},
-{q:'Forever means?',o:['Maybe','Someday','You & Me 💍','Until bored'],a:2},
-{q:'One thing I am 100% sure about?',o:['Weather','Traffic','Us ❤️','Luck'],a:2}
-];
-let qIndex=0;
-function startQuiz(){carouselWrap.style.display='none';splash.style.display='none';quiz.style.display='block';showQ()}
-function showQ(){quizQ.innerText=quizData[qIndex].q;options.innerHTML='';tease.innerText='';quizData[qIndex].o.forEach((opt,i)=>{const b=document.createElement('button');b.innerText=opt;b.onclick=()=>check(i);options.appendChild(b)})}
-function check(i){if(i===quizData[qIndex].a){qIndex++;if(qIndex<quizData.length){showQ()}else{quiz.innerHTML='<h2>You chose right… always ❤️</h2><p>Because you are my forever 💖</p>'}}else{tease.innerText='Nooo 😝 try again… you know this one'}}
+  function showQuiz() {
+    document.getElementById('loveScreen').classList.add('hidden');
+    document.getElementById('quiz').classList.remove('hidden');
+  }
 </script></body>
 </html>
