@@ -1,374 +1,264 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>For You ❤️</title>  <!-- THREE JS -->  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js">  
-  /* ================= RUNAWAY NO BUTTON (HOVER + TOUCH) ================= */
-  const noBtn = document.getElementById('noBtn');
-  const yesBtn = document.getElementById('yesBtn');
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>For You ❤️</title>
 
-  function moveNoButton() {
-    const x = Math.random() * 200 - 100;
-    const y = Math.random() * 200 - 100;
-    noBtn.style.transform = `translate(${x}px, ${y}px) scale(0.9)`;
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
 
-    // YES button grows every escape 😌
-    const currentScale = yesBtn.dataset.scale ? Number(yesBtn.dataset.scale) : 1;
-    const newScale = currentScale + 0.1;
-    yesBtn.dataset.scale = newScale;
-    yesBtn.style.transform = `scale(${newScale})`;
-  }
+<style>
+html,body{
+  margin:0;
+  padding:0;
+  background: radial-gradient(#1a002b,#000);
+  color:#fff;
+  font-family:'Poppins',sans-serif;
+  overflow-x:hidden;
+}
+canvas{
+  position:fixed;
+  top:0; left:0;
+  z-index:-1;
+}
 
-  noBtn.addEventListener('mouseover', moveNoButton);
-  noBtn.addEventListener('touchstart', moveNoButton);
+/* Landing */
+.hero{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:20px;
+}
+.hero h1{
+  font-size:clamp(2rem,5vw,4rem);
+  animation:float 3s ease-in-out infinite;
+}
+.hero button{
+  padding:15px 40px;
+  border:none;
+  border-radius:50px;
+  font-size:1.2rem;
+  background:linear-gradient(45deg,#ff4d6d,#ff85a1);
+  color:#fff;
+  cursor:pointer;
+  transition:0.3s;
+}
+.hero button:hover,.hero button:active{
+  transform:scale(1.1);
+  box-shadow:0 0 20px #ff85a1;
+}
 
-  /* ================= QUIZ DATA ================= */
-  const quizData = [
-    { q: "Who owns my heart?", a: ["You 😌", "Someone else", "Netflix"], c: 0 },
-    { q: "What are we made for?", a: ["Forever ❤️", "Timepass", "Confusion"], c: 0 },
-    { q: "When I see you I feel…", a: ["Home 🏡", "Sleepy", "Hungry"], c: 0 },
-    { q: "Our love story genre?", a: ["Soulmates ✨", "Drama", "Horror"], c: 0 },
-    { q: "Final truth?", a: ["We are meant 🥰", "Maybe", "No idea"], c: 0 }
-  ];
+/* Splash */
+#loveSplash{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  font-size:3rem;
+  z-index:10;
+  animation:fadeUp 3s forwards;
+}
 
-  let quizIndex = 0;
+/* Carousel */
+.carousel{
+  display:none;
+  margin:40px auto;
+  width:90%;
+  max-width:600px;
+  overflow:hidden;
+}
+.carousel-track{
+  display:flex;
+  animation:scroll 15s linear infinite;
+}
+.carousel img{
+  width:100%;
+  border-radius:20px;
+  margin-right:20px;
+}
 
-  function showQuiz() {
-    const card = document.getElementById('card');
-    const q = quizData[quizIndex];
-    card.innerHTML = `<h1>${q.q}</h1>` + q.a.map((opt,i)=>
-      `<button onclick=answerQuiz(${i})>${opt}</button>`
-    ).join('');
-    card.style.opacity = 1;
-    card.style.transform = 'scale(1)';
-  }
+/* Quiz */
+.quiz{
+  display:none;
+  text-align:center;
+  padding:30px;
+}
+.quiz button{
+  display:block;
+  margin:15px auto;
+  padding:12px 30px;
+  border-radius:30px;
+  border:none;
+  background:#ff85a1;
+  color:#000;
+  font-size:1rem;
+}
 
-  function answerQuiz(i) {
-    trackEvent('QUIZ_ATTEMPT', quizData[quizIndex].q + ' → ' + quizData[quizIndex].a[i]);
+@keyframes scroll{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+@keyframes fadeUp{
+  0%{opacity:0; transform:translateY(100px)}
+  100%{opacity:1; transform:translateY(-100px)}
+}
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-20px)}
+}
+</style>
+</head>
 
-    if (i === quizData[quizIndex].c) {
-      trackEvent('QUIZ_CORRECT', quizData[quizIndex].q);
-      quizIndex++;
-      if (quizIndex < quizData.length) {
-        showQuiz();
-      } else {
-        trackEvent('QUIZ_COMPLETED','All 5 answered');
-        document.getElementById('card').innerHTML = `<h1>You chose love… always ❤️</h1>`;
-      }
-    } else {
-      trackEvent('QUIZ_WRONG', quizData[quizIndex].q);
-      alert('Hehe 😜 you know that’s not the right one');
-    }
-  } else {
-        document.getElementById('card').innerHTML = `<h1>You chose love… always ❤️</h1>`;
-      }
-    } else {
-      alert('Hehe 😜 you know that’s not the right one');
-    }
-  }
+<body>
 
-  /* ================= EXTEND YES ACTION ================= */
-  const originalYes = yesClicked;
-  yesClicked = function() {
-    originalYes();
-    setTimeout(showQuiz, 6000);
-  };
+<audio id="bgm" src="music.mp3" loop></audio>
 
-  
-  /* ===== GOOGLE FORM TRACK FUNCTION ===== */
-  function trackEvent(action, value) {
-    document.getElementById('trackAction').value = action;
-    document.getElementById('trackValue').value = value;
-    document.getElementById('trackForm').submit();
-  }
+<div class="hero">
+  <h1>Hey… I have something special 💖</h1>
+  <button onclick="startLove()">Yes 💕</button>
+</div>
 
-</script>  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>  <!-- GSAP -->  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      overflow: hidden;
-      font-family: 'Poppins', sans-serif;
-      background: radial-gradient(circle at top, #1a001f, #000);
-      color: white;
-    }
+<div id="loveSplash">I Love You Babe 😘</div>
 
-    canvas { position: fixed; top: 0; left: 0; z-index: 1; }
+<div class="carousel" id="carousel">
+  <div class="carousel-track" id="carouselTrack"></div>
+</div>
 
-    .ui {
-      position: absolute;
-      z-index: 5;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-    }
+<div class="quiz" id="quiz"></div>
 
-    .card {
-      pointer-events: auto;
-      backdrop-filter: blur(20px);
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 30px;
-      padding: 30px;
-      width: 90%;
-      max-width: 380px;
-      text-align: center;
-      box-shadow: 0 0 60px rgba(255,105,180,0.3);
-      transform-style: preserve-3d;
-    }
-
-    h1 {
-      font-size: 28px;
-      margin-bottom: 20px;
-    }
-
-    button {
-      margin-top: 15px;
-      width: 100%;
-      padding: 14px;
-      border-radius: 20px;
-      border: none;
-      background: linear-gradient(135deg, #ff5fa2, #ff9fd2);
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .loveText {
-      position: absolute;
-      font-size: 48px;
-      font-weight: bold;
-      opacity: 0;
-      z-index: 10;
-      text-shadow: 0 0 30px pink;
-    }
-
-    .carousel {
-      position: absolute;
-      bottom: 10%;
-      width: 90%;
-      max-width: 320px;
-      display: flex;
-      overflow: hidden;
-      border-radius: 20px;
-      box-shadow: 0 0 40px rgba(255,192,203,0.5);
-      opacity: 0;
-    }
-
-    .carousel img {
-      width: 100%;
-      flex-shrink: 0;
-    }
-
-    @media (max-width: 600px) {
-      h1 { font-size: 24px; }
-      .loveText { font-size: 34px; }
-    }
-  </style></head>
-<body><canvas id="three"></canvas>
-
-<div class="ui">
-  <div class="card" id="card">
-    <h1>Can I ask you something… 🥺</h1>
-    <button id="yesBtn" onclick="yesClicked()">Yes 💖</button>
-    <button id="noBtn" onclick="noClicked()">No 🙈</button>
-  </div>
-</div><div class="loveText" id="loveText">I love you, babe ❤️</div><div class="carousel" id="carousel">
-  <img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" />
-  <img src="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif" />
-  <img src="https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif" />
-</div><audio id="song" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>
-
-<!-- GOOGLE FORM (HIDDEN TRACKING) --><form id="trackForm" action="https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse" method="POST" target="hidden_iframe">
-  <input type="hidden" name="entry.1111111111" id="trackAction">
-  <input type="hidden" name="entry.2222222222" id="trackValue">
+<!-- Hidden Google Form -->
+<form id="tracker" action="https://docs.google.com/forms/d/e/FORM_ID/formResponse" method="POST" target="hidden_iframe">
+  <input name="entry.111111" id="trackAnswer">
 </form>
-<iframe name="hidden_iframe" style="display:none"></iframe><script>
-  /* ================= THREE JS SCENE ================= */
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three'), alpha: true, antialias:true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
+<iframe name="hidden_iframe" style="display:none;"></iframe>
 
-  camera.position.set(0, 2, 10);
+<script>
+/* ---------- THREE JS SCENE ---------- */
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableZoom = false;
-  controls.enablePan = false;
+const light=new THREE.PointLight(0xff85a1,2);
+light.position.set(5,5,5);
+scene.add(light);
 
-  /* ===== LIGHTING ===== */
-  const ambient = new THREE.AmbientLight(0xffffff, 1.2);
-  scene.add(ambient);
-  const keyLight = new THREE.PointLight(0xff9fd2, 2.5, 50);
-  keyLight.position.set(5, 6, 6);
-  scene.add(keyLight);
+/* Heart */
+const heartShape=new THREE.Shape();
+heartShape.moveTo(0,0);
+heartShape.bezierCurveTo(0,0,0,-1,-1,-1);
+heartShape.bezierCurveTo(-3,-1,-3,2,-3,2);
+heartShape.bezierCurveTo(-3,4,-1,6,0,7);
+heartShape.bezierCurveTo(1,6,3,4,3,2);
+heartShape.bezierCurveTo(3,2,3,-1,1,-1);
+heartShape.bezierCurveTo(0,-1,0,0,0,0);
 
-  /* ===== HEART BASE ===== */
-  const heartShape = new THREE.Shape();
-  heartShape.moveTo(0, 0);
-  heartShape.bezierCurveTo(0, 0, -2, -2, -4, 0);
-  heartShape.bezierCurveTo(-6, 3, -3, 6, 0, 8);
-  heartShape.bezierCurveTo(3, 6, 6, 3, 4, 0);
-  heartShape.bezierCurveTo(2, -2, 0, 0, 0, 0);
+const heart=new THREE.Mesh(
+  new THREE.ExtrudeGeometry(heartShape,{depth:1,bevelEnabled:true}),
+  new THREE.MeshStandardMaterial({color:0xff4d6d})
+);
+scene.add(heart);
 
-  const heartGeo = new THREE.ExtrudeGeometry(heartShape, { depth: 2, bevelEnabled: true, bevelSize: 0.6, bevelThickness: 0.6 });
-  const heartMat = new THREE.MeshStandardMaterial({ color: 0xff4f9a, roughness: 0.2, metalness: 0.6, emissive: 0xff1f7a });
-  const heartMesh = new THREE.Mesh(heartGeo, heartMat);
-  heartMesh.rotation.x = Math.PI;
-  heartMesh.scale.set(0.25,0.25,0.25);
-  scene.add(heartMesh);
+/* Doraemon-like */
+const body=new THREE.Mesh(
+  new THREE.SphereGeometry(1.2,32,32),
+  new THREE.MeshStandardMaterial({color:0x4dd0ff})
+);
+body.position.y=2;
+scene.add(body);
 
-  /* ===== DOREAMON (STYLIZED) ===== */
-  function createDoraemon() {
-    const group = new THREE.Group();
+/* Nobita-like */
+const nobita=new THREE.Mesh(
+  new THREE.SphereGeometry(0.8,32,32),
+  new THREE.MeshStandardMaterial({color:0xffe0bd})
+);
+nobita.position.set(1.5,2.2,0);
+scene.add(nobita);
 
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.9,32,32), new THREE.MeshStandardMaterial({color:0x2fa4ff}));
-    const face = new THREE.Mesh(new THREE.SphereGeometry(0.7,32,32), new THREE.MeshStandardMaterial({color:0xffffff}));
-    face.position.z = 0.4;
+camera.position.z=8;
 
-    const nose = new THREE.Mesh(new THREE.SphereGeometry(0.12,16,16), new THREE.MeshStandardMaterial({color:0xff0000}));
-    nose.position.set(0,0.1,1);
+function animate(){
+  requestAnimationFrame(animate);
+  heart.rotation.y+=0.005;
+  body.rotation.y+=0.01;
+  nobita.rotation.y-=0.01;
+  renderer.render(scene,camera);
+}
+animate();
 
-    group.add(body, face, nose);
-    group.position.set(-0.6, 1.1, 0);
-    return group;
-  }
+/* ---------- INTERACTION ---------- */
+const images=[
+  "images/couple1.jpg",
+  "images/couple2.jpg",
+  "images/couple3.jpg",
+  "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif"
+];
 
-  /* ===== NOBITA (STYLIZED BEGGING) ===== */
-  function createNobita() {
-    const group = new THREE.Group();
+function startLove(){
+  document.getElementById("bgm").play();
+  document.getElementById("loveSplash").style.display="flex";
 
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.45,32,32), new THREE.MeshStandardMaterial({color:0xffddb3}));
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.4,0.9,32), new THREE.MeshStandardMaterial({color:0xffe066}));
-    body.position.y = -0.7;
+  setTimeout(()=>{
+    document.getElementById("loveSplash").style.display="none";
+    startCarousel();
+    startQuiz(0);
+  },3000);
+}
 
-    const handL = new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,0.7,16), new THREE.MeshStandardMaterial({color:0xffddb3}));
-    const handR = handL.clone();
-    handL.position.set(-0.4,-0.4,0.2);
-    handR.position.set(0.4,-0.4,0.2);
-    handL.rotation.z = Math.PI/3;
-    handR.rotation.z = -Math.PI/3;
-
-    group.add(head, body, handL, handR);
-    group.position.set(0.8, 1.2, 0);
-    return group;
-  }
-
-  const doraemon = createDoraemon();
-  const nobita = createNobita();
-
-  scene.add(doraemon);
-  scene.add(nobita);
-
-  /* ===== FLOATING MINI HEART (BEGGING) ===== */
-  const miniHeart = new THREE.Mesh(new THREE.SphereGeometry(0.18,32,32), new THREE.MeshStandardMaterial({color:0xff2f7a, emissive:0xff1493}));
-  miniHeart.position.set(0.2, 1.8, 1);
-  scene.add(miniHeart);
-
-  /* ===== FLOATING BACKGROUND HEARTS ===== */
-  const heartGeometry = new THREE.SphereGeometry(0.12, 32, 32);
-  const heartMaterial = new THREE.MeshStandardMaterial({ color: 0xff5fa2, emissive: 0xff2f92 });
-  const hearts = [];
-  for (let i = 0; i < 70; i++) {
-    const h = new THREE.Mesh(heartGeometry, heartMaterial);
-    h.position.set((Math.random()-0.5)*12, (Math.random()-0.5)*12, (Math.random()-0.5)*12);
-    hearts.push(h);
-    scene.add(h);
-  }
-
-  /* ===== POST PROCESSING (GLOW FEEL VIA MATERIAL) ===== */
-  heartMat.emissiveIntensity = 1.2;
-
-  /* ===== ROSE PETAL PARTICLES ===== */
-  const petalGeo = new THREE.CircleGeometry(0.12, 16);
-  const petalMat = new THREE.MeshStandardMaterial({ color: 0xff6fae, side: THREE.DoubleSide });
-  const petals = [];
-  for (let i = 0; i < 60; i++) {
-    const p = new THREE.Mesh(petalGeo, petalMat);
-    p.position.set((Math.random()-0.5)*12, Math.random()*8, (Math.random()-0.5)*6);
-    p.rotation.x = Math.random()*Math.PI;
-    petals.push(p);
-    scene.add(p);
-  }
-
-  /* ===== EMOTIONAL ANIMATION LOOP ===== */
-  function animate() {
-    requestAnimationFrame(animate);
-
-    // Heart throne
-    heartMesh.rotation.y += 0.003;
-
-    // Doraemon gentle nod
-    doraemon.rotation.y += 0.005;
-    doraemon.rotation.x = Math.sin(Date.now()*0.002)*0.05;
-
-    // Nobita begging motion
-    nobita.rotation.y -= 0.006;
-    nobita.position.y = 1.2 + Math.sin(Date.now()*0.003)*0.05;
-
-    // Floating love heart
-    miniHeart.position.y = 1.8 + Math.sin(Date.now()*0.004)*0.2;
-    miniHeart.rotation.y += 0.05;
-
-    // Rose petals falling
-    petals.forEach(p => {
-      p.position.y -= 0.01;
-      p.rotation.z += 0.01;
-      if (p.position.y < -4) p.position.y = 6;
-    });
-
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth/window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+function startCarousel(){
+  const track=document.getElementById("carouselTrack");
+  images.forEach(src=>{
+    const img=document.createElement("img");
+    img.src=src;
+    track.appendChild(img);
   });
+  document.getElementById("carousel").style.display="block";
+}
 
-  /* ================= INTERACTION ================= */
-  function yesClicked() {
-    document.getElementById('song').play();
+/* ---------- QUIZ ---------- */
+const quizzes=[
+  {q:"Who loves you the most? 😌",a:["Me ❤️","Also me 😘","Obviously me 😍"]},
+  {q:"Who should you marry? 💍",a:["Me","Me","Me"]},
+  {q:"Who makes you smile? 😊",a:["Me","Me","Me"]},
+  {q:"Who is your forever? ♾️",a:["Me","Me","Me"]},
+  {q:"Final answer? 🥹",a:["I love you ❤️"]}
+];
 
-    // TRACK YES CLICK
-    trackEvent('YES_CLICK','She clicked YES');
-
-    gsap.to('#card', { opacity: 0, scale: 0.7, duration: 0.8 });
-
-    gsap.to('#loveText', {
-      opacity: 1,
-      y: -120,
-      duration: 2,
-      ease: 'power3.out'
-    });
-
-    gsap.to('#carousel', { opacity: 1, duration: 1, delay: 1.5 });
-    autoSlide();
+function startQuiz(i){
+  if(i>=quizzes.length) return;
+  const q=quizzes[i];
+  const quiz=document.getElementById("quiz");
+  quiz.innerHTML=`<h2>${q.q}</h2>`;
+  q.a.forEach(ans=>{
+    const b=document.createElement("button");
+    b.innerText=ans;
+    b.onclick=()=>{
+      track(ans);
+      startQuiz(i+1);
+    };
+    quiz.appendChild(b);
   });
+  quiz.style.display="block";
+}
 
-    gsap.to('#loveText', {
-      opacity: 1,
-      y: -120,
-      duration: 2,
-      ease: 'power3.out'
-    });
+function track(val){
+  document.getElementById("trackAnswer").value=val;
+  document.getElementById("tracker").submit();
+}
 
-    gsap.to('#carousel', { opacity: 1, duration: 1, delay: 1.5 });
-    autoSlide();
-  }
+/* Responsive */
+window.addEventListener("resize",()=>{
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
+</script>
 
-  // No button is now UNCLICKABLE 😈
-function noClicked() {}
-
-
-  function autoSlide() {
-    const carousel = document.getElementById('carousel');
-    let index = 0;
-    setInterval(() => {
-      index = (index + 1) % carousel.children.length;
-      carousel.style.transform = `translateX(-${index * 100}%)`;
-    }, 2500);
-  }
-</script></body>
+</body>
 </html>
