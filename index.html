@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Valentine's Scroll Experience</title>
+  <title>Doraemon Valentine Experience</title>
   <style>
     body, html { margin: 0; padding: 0; height: 100%; overflow-x: hidden; font-family: 'Arial', sans-serif; }
     section {
@@ -14,14 +14,20 @@
       color: white;
       position: relative;
       z-index: 10;
+      flex-direction: column;
       opacity: 0;
     }
     canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
-    button { margin-top: 20px; padding: 10px 20px; font-size: 1em; cursor: pointer; }
+    button { margin: 10px; padding: 10px 20px; font-size: 1em; cursor: pointer; }
+    .options { display: flex; flex-direction: column; margin-top: 20px; }
+    .options button { background: rgba(255,255,255,0.8); color: black; border: none; border-radius: 5px; }
+    #reel { display: flex; overflow-x: scroll; height: 100vh; align-items: center; scroll-snap-type: x mandatory; }
+    #reel img { height: 80%; margin: 0 10px; border: 5px solid white; border-radius: 10px; scroll-snap-align: center; }
     #final h1 { font-size: 3em; color: pink; text-shadow: 0 0 20px red; }
+    body.locked { overflow: hidden; }
   </style>
 </head>
-<body>
+<body class="locked">
   <canvas id="bg"></canvas>
 
   <section id="intro">
@@ -32,11 +38,31 @@
     </div>
   </section>
 
-  <section id="questions">
-    <div id="questionBox">
-      <p id="questionText">Do you know how much I love you? 💕</p>
-      <button id="nextBtn">Next ➡️</button>
+  <section id="q1">
+    <h2>Do you know how much I love you? 💕</h2>
+    <div class="options">
+      <button>More than Doraemon loves gadgets</button>
+      <button>More than Nobita loves Shizuka</button>
+      <button>Infinity ❤️</button>
     </div>
+  </section>
+
+  <section id="q2">
+    <h2>Will you always hold my hand? 🤲</h2>
+    <div class="options">
+      <button>Yes, forever</button>
+      <button>Only if you share snacks</button>
+      <button>Never letting go 💖</button>
+    </div>
+  </section>
+
+  <section id="reel">
+    <img src="img1.jpg">
+    <img src="img2.jpg">
+    <img src="img3.jpg">
+    <img src="img4.jpg">
+    <img src="img5.jpg">
+    <img src="img6.jpg">
   </section>
 
   <section id="final">
@@ -61,26 +87,20 @@
     light.position.set(10,10,10);
     scene.add(light);
 
-    // Floating hearts
-    const hearts = [];
-    const heartGeometry = new THREE.SphereGeometry(0.2, 16, 16);
-    const heartMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-    for (let i = 0; i < 80; i++) {
-      const heart = new THREE.Mesh(heartGeometry, heartMaterial);
-      heart.position.set((Math.random()-0.5)*30, (Math.random()-0.5)*30, (Math.random()-0.5)*30);
-      scene.add(heart);
-      hearts.push(heart);
-    }
+    // Doraemon & Nobita spheres
+    const doraemon = new THREE.Mesh(new THREE.SphereGeometry(3,32,32), new THREE.MeshPhongMaterial({color:0x0000ff}));
+    const nobita = new THREE.Mesh(new THREE.SphereGeometry(2.5,32,32), new THREE.MeshPhongMaterial({color:0xffff00}));
+    doraemon.position.x = -5;
+    nobita.position.x = 5;
+    scene.add(doraemon);
+    scene.add(nobita);
 
-    camera.position.z = 12;
+    camera.position.z = 15;
 
     function animate() {
       requestAnimationFrame(animate);
-      hearts.forEach(h => {
-        h.rotation.x += 0.01;
-        h.rotation.y += 0.01;
-        h.position.y += Math.sin(Date.now()*0.001 + h.position.x)*0.002;
-      });
+      doraemon.rotation.y += 0.01;
+      nobita.rotation.y -= 0.01;
       renderer.render(scene, camera);
     }
     animate();
@@ -91,86 +111,73 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // Parallax mouse movement
-    document.addEventListener("mousemove", (event) => {
-      const x = (event.clientX / window.innerWidth - 0.5) * 2;
-      const y = (event.clientY / window.innerHeight - 0.5) * 2;
-      camera.position.x = x * 2;
-      camera.position.y = -y * 2;
-    });
-
-    // --- Scroll Animations ---
-    gsap.registerPlugin(ScrollTrigger);
-
-    gsap.utils.toArray("section").forEach(section => {
-      gsap.to(section, {
-        opacity: 1,
-        duration: 1,
-        scrollTrigger: {
-          trigger: section,
-          start: "top center",
-          toggleActions: "play none none reverse"
-        }
-      });
-    });
-
-    gsap.to(camera.position, {
-      z: 6,
-      scrollTrigger: {
-        trigger: "#questions",
-        start: "top center",
-        end: "bottom center",
-        scrub: true
-      }
-    });
-
-    gsap.to(camera.rotation, {
-      y: Math.PI,
-      scrollTrigger: {
-        trigger: "#final",
-        start: "top center",
-        end: "bottom center",
-        scrub: true
-      }
-    });
-
     // --- Interaction Logic ---
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
     const song = document.getElementById("song");
-    const questionText = document.getElementById("questionText");
-    const nextBtn = document.getElementById("nextBtn");
-
-    const teasingQuestions = [
-      "Do you know how much I love you? 💕",
-      "Will you always hold my hand? 🤲",
-      "Can you promise to smile forever? 😊",
-      "Would you still love me if I snore? 😴",
-      "Will you share your fries with me? 🍟",
-      "Can you handle my endless teasing? 😜",
-      "Will you be my partner in crime? 🕵️",
-      "Do you realize you’re stuck with me now? 😏"
-    ];
-    let qIndex = 0;
 
     noBtn.onclick = () => {
       yesBtn.style.transform = "scale(1.5)";
     };
 
     yesBtn.onclick = () => {
+      document.body.classList.remove("locked");
       song.play();
-      questionText.innerHTML = teasingQuestions[qIndex];
+      // reveal scroll sections
+      gsap.utils.toArray("section").forEach(section => {
+        gsap.to(section, {
+          opacity: 1,
+          duration: 1,
+          scrollTrigger: {
+            trigger: section,
+            start: "top center",
+            toggleActions: "play none none reverse"
+          }
+        });
+      });
     };
 
-    nextBtn.onclick = () => {
-      qIndex++;
-      if (qIndex < teasingQuestions.length) {
-        questionText.innerHTML = teasingQuestions[qIndex];
-      } else {
-        document.getElementById("questions").style.display = "none";
-        document.getElementById("final").style.display = "flex";
+    // Answer gating
+    document.querySelectorAll("#q1 .options button").forEach(btn => {
+      btn.onclick = () => {
+        ScrollTrigger.refresh(); // allow scroll to next
+      };
+    });
+    document.querySelectorAll("#q2 .options button").forEach(btn => {
+      btn.onclick = () => {
+        ScrollTrigger.refresh();
+      };
+    });
+
+    // Camera scroll animations
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.to(camera.position, {
+      z: 8,
+      scrollTrigger: {
+        trigger: "#q1",
+        start: "top center",
+        end: "bottom center",
+        scrub: true
       }
-    };
+    });
+    gsap.to(camera.rotation, {
+      y: Math.PI/2,
+      scrollTrigger: {
+        trigger: "#q2",
+        start: "top center",
+        end: "bottom center",
+        scrub: true
+      }
+    });
+    gsap.to(camera.position, {
+      x: 5,
+      scrollTrigger: {
+        trigger: "#reel",
+        start: "top center",
+        end: "bottom center",
+        scrub: true
+      }
+    });
   </script>
 </body>
 </html>
