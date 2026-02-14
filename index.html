@@ -177,4 +177,31 @@
     // Camera scroll animations
     gsap.to(camera.position, {
       z: 8,
-     
+      scrollTrigger: {
+        trigger: "#q1",
+        start: "top center",
+        end: "bottom center",
+        scrub: true
+      }
+    });
+    gsap.to(camera.rotation, {
+      y: Math.PI/2,
+      scrollTrigger: {
+        trigger: "#q2",
+        start: "top center",
+        end: "bottom center",
+        scrub: true
+      }
+    });
+    gsap.to(camera.position, {
+      x: 5,
+      scrollTrigger: {
+        trigger: "#reel",
+        start: "top center",
+        end: "bottom center",
+        scrub: true
+      }
+    });
+  </script>
+</body>
+</html>
