@@ -8,11 +8,12 @@
     #overlay {
       position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
       text-align: center; background: rgba(255,255,255,0.8); padding: 20px; border-radius: 10px;
+      z-index: 10;
     }
     button { margin: 10px; padding: 10px 20px; font-size: 18px; cursor: pointer; }
-    #images { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); display: none; }
+    #images { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); display: none; z-index: 10; }
     #images img { max-width: 300px; margin: 10px; display: none; }
-    #questions { position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%); display: none; font-size: 22px; text-align: center; }
+    #questions { position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%); display: none; font-size: 22px; text-align: center; z-index: 10; }
   </style>
 </head>
 <body>
@@ -35,8 +36,8 @@
 
   <audio id="song" src="yoursong.mp3"></audio>
 
+  <!-- Three.js -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/loaders/GLTFLoader.js"></script>
 
   <script>
     const yesBtn = document.getElementById("yesBtn");
@@ -89,31 +90,50 @@
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: "entry.YOUR_ENTRY_ID=Yes"
       });
-
-      // Three.js scene
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-      const renderer = new THREE.WebGLRenderer();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
-
-      const light = new THREE.PointLight(0xffffff, 1);
-      light.position.set(10,10,10);
-      scene.add(light);
-
-      const loader = new THREE.GLTFLoader();
-      loader.load("couple_model.glb", function(gltf){
-        const model = gltf.scene;
-        scene.add(model);
-        camera.position.z = 5;
-        function animate(){
-          requestAnimationFrame(animate);
-          model.rotation.y += 0.01;
-          renderer.render(scene, camera);
-        }
-        animate();
-      });
     };
+
+    // --- Three.js Scene ---
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffc0cb); // pink background
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    const light = new THREE.PointLight(0xffffff, 1);
+    light.position.set(10,10,10);
+    scene.add(light);
+
+    // Create a 3D heart shape
+    const shape = new THREE.Shape();
+    shape.moveTo(0, 0);
+    shape.bezierCurveTo(0, 0, 0, 3, -3, 3);
+    shape.bezierCurveTo(-6, 3, -6, -3, -3, -3);
+    shape.bezierCurveTo(-3, -5, 0, -7, 0, -9);
+    shape.bezierCurveTo(0, -7, 3, -5, 3, -3);
+    shape.bezierCurveTo(6, -3, 6, 3, 3, 3);
+    shape.bezierCurveTo(0, 3, 0, 0, 0, 0);
+
+    const geometry = new THREE.ExtrudeGeometry(shape, { depth: 1, bevelEnabled: true });
+    const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    const heart = new THREE.Mesh(geometry, material);
+    scene.add(heart);
+
+    camera.position.z = 20;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      heart.rotation.y += 0.01;
+      heart.rotation.x += 0.01;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
   </script>
 </body>
 </html>
