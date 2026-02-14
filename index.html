@@ -1,264 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>For You ❤️</title>
-
-<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-
-<style>
-html,body{
-  margin:0;
-  padding:0;
-  background: radial-gradient(#1a002b,#000);
-  color:#fff;
-  font-family:'Poppins',sans-serif;
-  overflow-x:hidden;
-}
-canvas{
-  position:fixed;
-  top:0; left:0;
-  z-index:-1;
-}
-
-/* Landing */
-.hero{
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  padding:20px;
-}
-.hero h1{
-  font-size:clamp(2rem,5vw,4rem);
-  animation:float 3s ease-in-out infinite;
-}
-.hero button{
-  padding:15px 40px;
-  border:none;
-  border-radius:50px;
-  font-size:1.2rem;
-  background:linear-gradient(45deg,#ff4d6d,#ff85a1);
-  color:#fff;
-  cursor:pointer;
-  transition:0.3s;
-}
-.hero button:hover,.hero button:active{
-  transform:scale(1.1);
-  box-shadow:0 0 20px #ff85a1;
-}
-
-/* Splash */
-#loveSplash{
-  position:fixed;
-  inset:0;
-  background:#000;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  font-size:3rem;
-  z-index:10;
-  animation:fadeUp 3s forwards;
-}
-
-/* Carousel */
-.carousel{
-  display:none;
-  margin:40px auto;
-  width:90%;
-  max-width:600px;
-  overflow:hidden;
-}
-.carousel-track{
-  display:flex;
-  animation:scroll 15s linear infinite;
-}
-.carousel img{
-  width:100%;
-  border-radius:20px;
-  margin-right:20px;
-}
-
-/* Quiz */
-.quiz{
-  display:none;
-  text-align:center;
-  padding:30px;
-}
-.quiz button{
-  display:block;
-  margin:15px auto;
-  padding:12px 30px;
-  border-radius:30px;
-  border:none;
-  background:#ff85a1;
-  color:#000;
-  font-size:1rem;
-}
-
-@keyframes scroll{
-  0%{transform:translateX(0)}
-  100%{transform:translateX(-50%)}
-}
-@keyframes fadeUp{
-  0%{opacity:0; transform:translateY(100px)}
-  100%{opacity:1; transform:translateY(-100px)}
-}
-@keyframes float{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-20px)}
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Valentine's Day</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: pink; font-family: Arial, sans-serif; }
+    #overlay {
+      position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center; background: rgba(255,255,255,0.8); padding: 20px; border-radius: 10px;
+    }
+    button { margin: 10px; padding: 10px 20px; font-size: 18px; cursor: pointer; }
+    #images { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); display: none; }
+    #images img { max-width: 300px; margin: 10px; display: none; }
+    #questions { position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%); display: none; font-size: 22px; text-align: center; }
+  </style>
 </head>
-
 <body>
+  <div id="overlay">
+    <h1>Will you be my forever?</h1>
+    <button id="yesBtn">Yes 💖</button>
+    <button id="noBtn">No 😜</button>
+  </div>
 
-<audio id="bgm" src="music.mp3" loop></audio>
+  <div id="images">
+    <img src="img1.jpg">
+    <img src="img2.jpg">
+    <img src="img3.jpg">
+    <img src="img4.jpg">
+    <img src="img5.jpg">
+    <img src="img6.jpg">
+  </div>
 
-<div class="hero">
-  <h1>Hey… I have something special 💖</h1>
-  <button onclick="startLove()">Yes 💕</button>
-</div>
+  <div id="questions"></div>
 
-<div id="loveSplash">I Love You Babe 😘</div>
+  <audio id="song" src="yoursong.mp3"></audio>
 
-<div class="carousel" id="carousel">
-  <div class="carousel-track" id="carouselTrack"></div>
-</div>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/loaders/GLTFLoader.js"></script>
 
-<div class="quiz" id="quiz"></div>
+  <script>
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const overlay = document.getElementById("overlay");
+    const song = document.getElementById("song");
+    const images = document.getElementById("images");
+    const questionsDiv = document.getElementById("questions");
 
-<!-- Hidden Google Form -->
-<form id="tracker" action="https://docs.google.com/forms/d/e/FORM_ID/formResponse" method="POST" target="hidden_iframe">
-  <input name="entry.111111" id="trackAnswer">
-</form>
-<iframe name="hidden_iframe" style="display:none;"></iframe>
+    const teasingQuestions = [
+      "Do you know how much I love you? 💕",
+      "Will you always hold my hand? 🤲",
+      "Can you promise to smile forever? 😊",
+      "Would you still love me if I snore? 😴",
+      "Will you share your fries with me? 🍟",
+      "Can you handle my endless teasing? 😜",
+      "Will you be my partner in crime? 🕵️",
+      "Do you realize you’re stuck with me now? 😏"
+    ];
 
-<script>
-/* ---------- THREE JS SCENE ---------- */
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
-const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true});
-renderer.setSize(window.innerWidth,window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-const light=new THREE.PointLight(0xff85a1,2);
-light.position.set(5,5,5);
-scene.add(light);
-
-/* Heart */
-const heartShape=new THREE.Shape();
-heartShape.moveTo(0,0);
-heartShape.bezierCurveTo(0,0,0,-1,-1,-1);
-heartShape.bezierCurveTo(-3,-1,-3,2,-3,2);
-heartShape.bezierCurveTo(-3,4,-1,6,0,7);
-heartShape.bezierCurveTo(1,6,3,4,3,2);
-heartShape.bezierCurveTo(3,2,3,-1,1,-1);
-heartShape.bezierCurveTo(0,-1,0,0,0,0);
-
-const heart=new THREE.Mesh(
-  new THREE.ExtrudeGeometry(heartShape,{depth:1,bevelEnabled:true}),
-  new THREE.MeshStandardMaterial({color:0xff4d6d})
-);
-scene.add(heart);
-
-/* Doraemon-like */
-const body=new THREE.Mesh(
-  new THREE.SphereGeometry(1.2,32,32),
-  new THREE.MeshStandardMaterial({color:0x4dd0ff})
-);
-body.position.y=2;
-scene.add(body);
-
-/* Nobita-like */
-const nobita=new THREE.Mesh(
-  new THREE.SphereGeometry(0.8,32,32),
-  new THREE.MeshStandardMaterial({color:0xffe0bd})
-);
-nobita.position.set(1.5,2.2,0);
-scene.add(nobita);
-
-camera.position.z=8;
-
-function animate(){
-  requestAnimationFrame(animate);
-  heart.rotation.y+=0.005;
-  body.rotation.y+=0.01;
-  nobita.rotation.y-=0.01;
-  renderer.render(scene,camera);
-}
-animate();
-
-/* ---------- INTERACTION ---------- */
-const images=[
-  "images/couple1.jpg",
-  "images/couple2.jpg",
-  "images/couple3.jpg",
-  "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif"
-];
-
-function startLove(){
-  document.getElementById("bgm").play();
-  document.getElementById("loveSplash").style.display="flex";
-
-  setTimeout(()=>{
-    document.getElementById("loveSplash").style.display="none";
-    startCarousel();
-    startQuiz(0);
-  },3000);
-}
-
-function startCarousel(){
-  const track=document.getElementById("carouselTrack");
-  images.forEach(src=>{
-    const img=document.createElement("img");
-    img.src=src;
-    track.appendChild(img);
-  });
-  document.getElementById("carousel").style.display="block";
-}
-
-/* ---------- QUIZ ---------- */
-const quizzes=[
-  {q:"Who loves you the most? 😌",a:["Me ❤️","Also me 😘","Obviously me 😍"]},
-  {q:"Who should you marry? 💍",a:["Me","Me","Me"]},
-  {q:"Who makes you smile? 😊",a:["Me","Me","Me"]},
-  {q:"Who is your forever? ♾️",a:["Me","Me","Me"]},
-  {q:"Final answer? 🥹",a:["I love you ❤️"]}
-];
-
-function startQuiz(i){
-  if(i>=quizzes.length) return;
-  const q=quizzes[i];
-  const quiz=document.getElementById("quiz");
-  quiz.innerHTML=`<h2>${q.q}</h2>`;
-  q.a.forEach(ans=>{
-    const b=document.createElement("button");
-    b.innerText=ans;
-    b.onclick=()=>{
-      track(ans);
-      startQuiz(i+1);
+    noBtn.onclick = () => {
+      yesBtn.style.transform = "scale(1.5)";
     };
-    quiz.appendChild(b);
-  });
-  quiz.style.display="block";
-}
 
-function track(val){
-  document.getElementById("trackAnswer").value=val;
-  document.getElementById("tracker").submit();
-}
+    yesBtn.onclick = () => {
+      overlay.style.display = "none";
+      song.play();
+      images.style.display = "block";
+      questionsDiv.style.display = "block";
 
-/* Responsive */
-window.addEventListener("resize",()=>{
-  camera.aspect=window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth,window.innerHeight);
-});
-</script>
+      // Show images one by one
+      const imgs = images.querySelectorAll("img");
+      imgs.forEach((img, i) => {
+        setTimeout(() => { img.style.display = "block"; }, i * 2000);
+      });
 
+      // Rotate teasing questions
+      let qIndex = 0;
+      function showQuestion() {
+        questionsDiv.innerHTML = teasingQuestions[qIndex];
+        qIndex = (qIndex + 1) % teasingQuestions.length;
+        setTimeout(showQuestion, 3000);
+      }
+      showQuestion();
+
+      // Send hidden response to Google Form
+      fetch("https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "entry.YOUR_ENTRY_ID=Yes"
+      });
+
+      // Three.js scene
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      const light = new THREE.PointLight(0xffffff, 1);
+      light.position.set(10,10,10);
+      scene.add(light);
+
+      const loader = new THREE.GLTFLoader();
+      loader.load("couple_model.glb", function(gltf){
+        const model = gltf.scene;
+        scene.add(model);
+        camera.position.z = 5;
+        function animate(){
+          requestAnimationFrame(animate);
+          model.rotation.y += 0.01;
+          renderer.render(scene, camera);
+        }
+        animate();
+      });
+    };
+  </script>
 </body>
 </html>
