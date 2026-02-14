@@ -95,12 +95,27 @@
     scene.add(doraemon);
     scene.add(nobita);
 
+    // Floating hearts
+    const hearts = [];
+    const heartGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+    const heartMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    for (let i = 0; i < 50; i++) {
+      const heart = new THREE.Mesh(heartGeometry, heartMaterial);
+      heart.position.set((Math.random()-0.5)*20, (Math.random()-0.5)*20, (Math.random()-0.5)*20);
+      scene.add(heart);
+      hearts.push(heart);
+    }
+
     camera.position.z = 15;
 
     function animate() {
       requestAnimationFrame(animate);
       doraemon.rotation.y += 0.01;
       nobita.rotation.y -= 0.01;
+      hearts.forEach(h => {
+        h.rotation.x += 0.01;
+        h.rotation.y += 0.01;
+      });
       renderer.render(scene, camera);
     }
     animate();
